@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# Fedora Atomic Update Checker.
+
+# Function to fetch modification time and display in reddish-pink color
+fetch_mod_time() {
+    local file_url="$1"
+    local color_hex="#ff69b4"  # Hex code for reddish-pink color
+
+    # Fetch the headers from the URL to get the Last-Modified date
+    local mod_time=$(curl -sI "$file_url" | grep -i "Last-Modified")
+
+    # Extract the date and time from the Last-Modified header
+    mod_time=$(echo "$mod_time" | cut -d':' -f2-)
+
+    # Convert 24-hour time to 12-hour AM/PM format
+    mod_time_formatted=$(date -d "$mod_time" +"%Y-%m-%d %I:%M:%S %p")
+
+    # Define color variables using hex code or ANSI color codes
+    green_color="\033[0;32m"    # Green color for "Latest update: "
+    pink_color="\033[38;2;255;105;180m"  # Reddish-pink color for the time
+    color_end="\033[0m"         # Reset color
+
+    # Echo "Last update: " in green color and the modification time in reddish-pink color
+    echo -e "${green_color}Latest update: ${color_end}${pink_color}${mod_time_formatted}${color_end}"
+}
+
+# Function to check which Fedora variant is running and set the appropriate file URL
+check_variant_and_fetch() {
+    local variant="$1"
+    local file_url=""
+
+    case "$variant" in
+        "kinoite")
+            file_url="https://kojipkgs.fedoraproject.org/ostree/repo/refs/heads/fedora/40/x86_64/kinoite"
+            ;;
+        "onyx")
+            file_url="https://kojipkgs.fedoraproject.org/ostree/repo/refs/heads/fedora/40/x86_64/onyx"
+            ;;
+        "sericea")
+            file_url="https://kojipkgs.fedoraproject.org/ostree/repo/refs/heads/fedora/40/x86_64/sericea"
+            ;;
+        "silverblue")
+            file_url="https://kojipkgs.fedoraproject.org/ostree/repo/refs/heads/fedora/40/x86_64/silverblue"
+            ;;
+        *)
+            echo "Unknown variant: $variant"
+            return 1
+            ;;
+    esac
+
+    # Fetch modification time for the selected variant
+    fetch_mod_time "$file_url"
+}
+
+# Main script to determine variant and fetch modification time
+if [[ -f /etc/os-release ]]; then
+    if grep -q "Silverblue" /etc/os-release; then
+        echo "System detected: Fedora Silverblue"
+        check_variant_and_fetch "silverblue"
+    elif grep -q "Kinoite" /etc/os-release; then
+        echo "System detected: Fedora Kinoite"
+        check_variant_and_fetch "kinoite"
+    elif grep -q "Onyx" /etc/os-release; then
+        echo "System detected: Fedora Onyx"
+        check_variant_and_fetch "onyx"
+    elif grep -q "Sericea" /etc/os-release; then
+        echo "System detected: Fedora Sericea"
+        check_variant_and_fetch "sericea"
+    else
+        echo "System variant not recognized."
+    fi
+else
+    echo "Unable to determine system variant. /etc/os-release not found."
+fi
