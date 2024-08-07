@@ -13,10 +13,10 @@ DIMENSIONS=(16 32 48 64 128 256 512)
 # Create the output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"
 
-# Convert image to PNG in exact specified dimensions
+# Convert image to PNG in exact specified dimensions with transparency
 for DIM in "${DIMENSIONS[@]}"; do
   OUTPUT_PNG="$OUTPUT_DIR/${DIM}x${DIM}.png"
-  magick convert "$INPUT_IMAGE" -resize "${DIM}x${DIM}"^ -gravity center -extent "${DIM}x${DIM}" "$OUTPUT_PNG"
+  magick convert "$INPUT_IMAGE" -resize "${DIM}x${DIM}" "$OUTPUT_PNG"
   echo "Created $OUTPUT_PNG"
 done
 
