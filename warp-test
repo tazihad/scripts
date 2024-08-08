@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# This script is licensed under the GNU General Public License v3.
+# See LICENSE file for details.
+
+# Author: @authername
+
+# Description: (Add a brief description of what the script does here)
+
+# Usage: (Explain how to use the script, including any arguments it takes)
+
+# Main script body
+
+# ... your script code here ...
+curl https://www.cloudflare.com/cdn-cgi/trace/
+
+exit 0
+
